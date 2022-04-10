@@ -42,6 +42,7 @@ class Stop{
 			
 		}
 		
+		
 		public void addDestination(StopTime st) {
 			destinations.add(st);
 		}
@@ -123,7 +124,8 @@ class Stop{
 	}
 
 	class StopTime{
-		//trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
+		//trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,
+		//pickup_type,drop_off_type,shape_dist_traveled
 		int trip_id;
 		int arrival_time, departure_time;
 		int stop_id;
@@ -150,6 +152,15 @@ class Stop{
 			drop_off_type = scan.nextInt();
 			
 			scan.close();
+		}
+		
+		public String toText(){
+			String text = "";
+			
+			text += ("" + trip_id + ", " + arrival_time + ", " + departure_time + ", " + stop_id + ", ," +
+					stop_headsign + ", " + pickup_type + ", " + drop_off_type + ", " + shape_dist_traveled);
+			
+			return text;
 		}
 		
 		public int TimetoSeconds(String input) {
@@ -192,6 +203,7 @@ class Stop{
 	
 	class Graph{
 		public ArrayList<Stop> stops;
+		public ArrayList<StopTime> trips;
 		
 		public Graph(ArrayList<Stop> verteces) {
 			stops = new ArrayList<Stop>();
@@ -202,6 +214,10 @@ class Stop{
 		
 		public void addStop(Stop vertex){
 			stops.add(vertex);
+		}
+		
+		public void addTrip(StopTime trip) {
+			trips.add(trip);
 		}
 		
 		public ArrayList<Stop> getStops() {
@@ -220,6 +236,18 @@ class Stop{
 			for(int i=0; i<stops.size(); i++) {
 				s = stops.get(i);
 				if(s.getId() == id) {
+					return s;
+				}
+			}
+			
+			return null;
+		}
+		public Stop findStopFromName(String name) {
+			Stop s = null;
+			
+			for(int i=0; i<stops.size(); i++) {
+				s = stops.get(i);
+				if(s.getName() == name) {
 					return s;
 				}
 			}

@@ -37,6 +37,7 @@ public class VancouverBus {
 		while(journeys.hasNextLine()) {
 			StopTime j = new StopTime(journeys.nextLine());
 			stopTime.add(j);
+			graph.addTrip(j);
 		}
 
 		for (int i = 0; i < stopTime.size()-1; i++) {
@@ -66,26 +67,28 @@ public class VancouverBus {
 
 		//select mode
 		boolean quit = false;
+		Scanner inputScanner = new Scanner(System.in);
 		while(!quit) {
-			Scanner inputScanner = new Scanner(System.in);
+			
 			System.out.println("Select Mode: 1 - shortest route, 2 - search bus stop, 3 - search by arrival time, 4 - exit");
 			int choice = 0;
 			while(!inputScanner.hasNextInt()) {}
 			choice = inputScanner.nextInt();
 			switch(choice) {
 			case 1: ShortestRoute(graph);
-			break;
-			case 2:	
 				break;
-			case 3:	
+			case 2:	SearchForStops(graph);
+				break;
+			case 3:	SearchByArrival(graph);
 				break;
 			case 4: quit = true;
-			break;
+				break;
 			default: System.out.println("Please enter 1,2,3 or 4");
-			break;
+				break;
 			}
-			inputScanner.close();
+			
 		}
+		inputScanner.close();
 
 	}
 
@@ -101,6 +104,8 @@ public class VancouverBus {
 		int end = 0;
 		while(!inputScanner.hasNextInt()) {}
 		end = inputScanner.nextInt();
+		
+		System.out.println("Processing...");
 
 		LinkedList<Stop> via = new LinkedList<Stop>();
 
@@ -109,6 +114,11 @@ public class VancouverBus {
 		//dijkstra
 		cost = calculateShortestPathFromSource(graph, graph.findStop(start), graph.findStop(end));
 		via = graph.findStop(end).via;
+		if(via.size() == 0) {
+			System.out.println("No Route Found");
+			inputScanner.close();
+			return;
+		}
 		
 		//reset graph
 		for(int i=0; i<graph.stops.size();i++) {
@@ -185,17 +195,64 @@ public class VancouverBus {
 			evaluationStop.setStopVia(shortestRoute);
 		}
 	}
-	/*
-	 * private static void CalculateMinimumDistance(Node evaluationNode,
-			  double edgeWeigh, Node sourceNode) {
-			    double sourceDistance = sourceNode.getDistance();
-			    if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
-			        evaluationNode.setDistance(sourceDistance + edgeWeigh);
-			        LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.getPath());
-			        shortestPath.add(sourceNode);
-			        evaluationNode.setPath(shortestPath);
-			    }
+	
+	private static void SearchForStops(Graph graph) {
+		ArrayList<String> stopNames = new ArrayList<>();
+		ArrayList<Stop> graphList = new ArrayList<>();
+		for(int i=0; i<graphList.size();i++) {
+			String g = graphList.get(i).toText();
+			//string manipulation
+			String g2 = g.substring(0, 2);
+			if (g2 == "WB" || g2 == "EB" || g2 == "NB" || g2 == "SB") {
+				g = g.substring(2) + g2;
 			}
-	 */
+			
+			stopNames.add(g);	
+		}
+		TST tree = new TST(stopNames);
+		System.out.println("Enter a stop:");
+		Scanner scan = new Scanner(System.in);
+		while (!scan.hasNext()) {}
+		String key = scan.next();
+		ArrayList<String> results = new ArrayList<>();
+		results = tree.Search(key);
+		for(int i = 0; i < results.size(); i++) {
+			System.out.println(results.get(i));
+		}
+		scan.close();
+	}
+	
+	private static void SearchByArrival(Graph graph) {
+		Scanner scan = new Scanner(System.in);
+		boolean done = false;
+		while(!done) {
+			System.out.print("Insert time (HH:MM:SS - 24 hour)");
+			String timeDay = scan.next();		
+			int time = TimetoSeconds(timeDay);
+		
+			if (time >= 0 && time < 86400) {
+				done = true;
+				for(int i = 0; i < graph.trips.size(); i++) {
+					if(graph.trips.get(i).arrival_time == time) {
+						System.out.println(graph.trips.get(i).toText());
+					}
+				}
+			}
+		}
+		scan.close();
+	}
+	
+	public static int TimetoSeconds(String input) {
+		
+		Scanner scan = new Scanner(input);
+		scan.useDelimiter(":");
+		int hours = 0, minutes = 0, seconds = 0;
+		if(scan.hasNextInt()) {hours = scan.nextInt();}
+		if(scan.hasNextInt()) {minutes = scan.nextInt();}
+		if(scan.hasNextInt()) {seconds = scan.nextInt();}
+		scan.close();
+		
+		return ((hours*3600) + (minutes*60) + seconds);
+	}
 
 }
