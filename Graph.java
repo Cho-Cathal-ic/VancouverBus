@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.Set;
 
 class Stop{
 		int id, code;
@@ -9,6 +11,9 @@ class Stop{
 		int location_type;
 		int parent_station;
 		ArrayList<StopTime> destinations = new ArrayList<StopTime>();
+		ArrayList<Transfer> transfers = new ArrayList<Transfer>();
+		int cost = Integer.MAX_VALUE;
+		LinkedList<Stop> via = new LinkedList<Stop>();
 
 		public Stop(String input) {
 			Scanner scan = new Scanner(input);
@@ -39,6 +44,18 @@ class Stop{
 		
 		public void addDestination(StopTime st) {
 			destinations.add(st);
+		}
+		
+		public void addTransfer(Transfer trans) {
+			transfers.add(trans);
+		}
+		
+		public void addStopVia(Stop stop) {
+			via.add(stop);
+		}
+		
+		public void setStopVia(LinkedList<Stop> stops) {
+			via = stops;
 		}
 		
 		//connections
@@ -78,6 +95,30 @@ class Stop{
 		
 		public int getParentStation() {
 			return parent_station;
+		}
+		
+		public void setCost(int c) {
+			cost = c;
+		}
+		
+		public int getCost() {
+			return cost;
+		}
+		
+		public static Stop getLowestCostStop(Set <Stop> unsettledStops) {
+			Stop lowestCostStop = null;
+			int lowestCost = Integer.MAX_VALUE;
+			for (Stop stop: unsettledStops) {
+				int stopCost = stop.getCost();
+				if(stopCost < lowestCost) {
+					lowestCost = stopCost;
+					lowestCostStop = stop;
+					
+				}
+				
+			}
+			
+			return lowestCostStop;
 		}
 	}
 
@@ -135,13 +176,13 @@ class Stop{
 		Transfer(String input){
 			Scanner scan = new Scanner(input);
 			scan.useDelimiter(":");
-			
-			from = scan.nextInt();
-			to = scan.nextInt();
-			type = scan.nextInt();
-			if(scan.hasNext()) {
-				minTransferTime = scan.nextInt();
-			}
+			if(scan.hasNextInt()) {from = scan.nextInt();} 
+			else {scan.next();}
+			if(scan.hasNextInt()) {to = scan.nextInt();} 
+			else if(scan.hasNext()){scan.next();}
+			if(scan.hasNextInt()) {type = scan.nextInt();} 
+			else if(scan.hasNext()){scan.next();}
+			if(scan.hasNext()) {minTransferTime = scan.nextInt();}
 			else {
 				minTransferTime = 0;
 			}
