@@ -231,15 +231,54 @@ public class VancouverBus {
 			int time = TimetoSeconds(timeDay);
 		
 			if (time >= 0 && time < 86400) {
+				ArrayList<StopTime> output = new ArrayList<>();
+				
 				done = true;
 				for(int i = 0; i < graph.trips.size(); i++) {
 					if(graph.trips.get(i).arrival_time == time) {
-						System.out.println(graph.trips.get(i).toText());
+						output.add(graph.trips.get(i));
 					}
+				}
+				output = mergeSortRecursive(output);
+				
+				for (int i = 0; i < output.size(); i++) {
+					System.out.println(output.get(i).toText());
 				}
 			}
 		}
 		scan.close();
+	}
+	
+	static ArrayList<StopTime> mergeSortRecursive (ArrayList<StopTime> a) {
+
+		
+		ArrayList<StopTime> aux = new ArrayList<>(a.size());
+		for(int i=0; i<a.size(); i++) {
+			aux.set(i,a.get(i));
+		}
+		sorting(a, aux, 0, a.size() -1);
+		
+		return a;
+
+	}//end mergeSortRecursive
+
+	static void merging (ArrayList<StopTime> a, ArrayList<StopTime> aux, int hi, int mid, int lo) {
+		int i = lo;
+		int j = mid+1;
+		for (int k = lo; k <= hi; k++) {
+			if		(i > mid) 		aux.set(k, a.get(j++));
+			else if	(j > hi)		aux.set(k, a.get(i++));
+			else if (a.get(j).trip_id < a.get(i).trip_id)	aux.set(k, a.get(j++));
+			else					aux.set(k, a.get(i++));
+		}
+	}
+	
+	static void sorting (ArrayList<StopTime> a, ArrayList<StopTime> aux, int lo, int hi) {
+		if (hi <= lo) return;
+		int mid = lo + (hi - lo)/2;
+		sorting (aux, a, lo, mid);
+		sorting (aux, a, mid+1, hi);
+		merging (a, aux, lo, mid, hi);
 	}
 	
 	public static int TimetoSeconds(String input) {
